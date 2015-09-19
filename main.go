@@ -6,38 +6,38 @@ import (
 	log "github.com/golang/glog"
 	"net/http"
 
-	"database/sql"
-	_ "github.com/lib/pq"
+	"gopkg.in/redis.v3"
 
 	"github.com/byxorna/partylist-server/web"
 )
 
 var (
-	httpPort int
-	dbPort   int
-	dbHost   string
-	dbName   string
-	dbUser   string
-	dbPass   string
+	httpPort  int
+	redisPort int
+	redisHost string
 )
 
 func init() {
 	flag.IntVar(&httpPort, "port", 8000, "HTTP port")
-	flag.StringVar(&dbHost, "db-host", "localhost", "DB host")
-	flag.IntVar(&dbPort, "db-port", 5432, "DB port")
-	flag.StringVar(&dbName, "db-name", "partylist", "DB name")
-	flag.StringVar(&dbUser, "db-user", "partylist", "DB user")
-	flag.StringVar(&dbPass, "db-pass", "partylist", "DB password")
+	flag.StringVar(&redisHost, "redis-host", "localhost", "Redis host")
+	flag.IntVar(&redisPort, "redis-port", 6379, "Redis port")
 	flag.Parse()
 }
 
 func main() {
-	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s port=%d host=%s sslmode=disable", dbUser, dbName, dbPort, dbHost))
-	if err != nil {
-		log.Fatal(err)
-	}
+	client := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", redisHost, redisPort),
+		Password: "",
+		DB:       0,
+	})
 
-	router := web.New(*db)
+	pong, err := client.Ping().Result()
+	if err != nil {
+		log.Fatal(pong, err)
+	}
+	log.Info(pong)
+
+	router := web.New(client)
 	if err = http.ListenAndServe(fmt.Sprintf(":%d", httpPort), router); err != nil {
 		log.Fatal(err)
 	}

@@ -1,8 +1,8 @@
 package web
 
 import (
-	"database/sql"
 	"github.com/gorilla/mux"
+	"gopkg.in/redis.v3"
 	"net/http"
 )
 
@@ -13,17 +13,14 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-type HandlerFuncWithDb func(w http.ResponseWriter, r *http.Request, db *sql.DB)
-
 type Routes []Route
 
-//TODO i dont like this. how can we pass the DB context into handlers while satisfying http.HandlerFunc interface
 var (
-	db sql.DB
+	redisClient *redis.Client
 )
 
-func New(database sql.DB) *mux.Router {
-	db = database
+func New(redisclient *redis.Client) *mux.Router {
+	redisClient = redisclient
 
 	router := mux.NewRouter().StrictSlash(true)
 	routes := Routes{
