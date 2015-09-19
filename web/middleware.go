@@ -7,7 +7,7 @@ import (
 )
 
 // wrap a http.Handler in a logging function
-func AccessLogger(fn http.Handler, name string) http.Handler {
+func AccessLogger(fn http.HandlerFunc, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		fn.ServeHTTP(w, r)

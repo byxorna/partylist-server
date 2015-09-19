@@ -24,3 +24,6 @@ _testmain.go
 *.prof
 
 .vagrant
+partylist-server
+*.swp
+**/*.swp
