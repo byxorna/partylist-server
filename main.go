@@ -35,9 +35,10 @@ func main() {
 	if err != nil {
 		log.Fatal(pong, err)
 	}
-	log.Info(pong)
+	log.Info("Connection to redis verified ", client, pong)
 
 	router := web.New(client)
+	log.Infof("Starting webserver on %s", fmt.Sprintf(":%d", httpPort))
 	if err = http.ListenAndServe(fmt.Sprintf(":%d", httpPort), router); err != nil {
 		log.Fatal(err)
 	}
