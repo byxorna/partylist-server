@@ -3,16 +3,30 @@
 	"GoVersion": "go1.5",
 	"Deps": [
 		{
+			"ImportPath": "github.com/gin-gonic/gin",
+			"Comment": "v1.0rc1-143-g704d690",
+			"Rev": "704d690ac0e25fcd060ff82f75f913e879e65a3c"
+		},
+		{
 			"ImportPath": "github.com/golang/glog",
 			"Rev": "44145f04b68cf362d9c4df2182967c2275eaefed"
 		},
 		{
-			"ImportPath": "github.com/gorilla/context",
-			"Rev": "50c25fb3b2b3b3cc724e9b6ac75fb44b3bccd0da"
+			"ImportPath": "github.com/manucorporat/sse",
+			"Rev": "fe6ea2c8e398672518ef204bf0fbd9af858d0e15"
 		},
 		{
-			"ImportPath": "github.com/gorilla/mux",
-			"Rev": "e444e69cbd2e2e3e0749a2f3c717cec491552bbf"
+			"ImportPath": "github.com/mattn/go-colorable",
+			"Rev": "40e4aedc8fabf8c23e040057540867186712faa5"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "d9558e5c97f85372afee28cf2b6059d7d3818919"
+		},
+		{
+			"ImportPath": "gopkg.in/bluesuncorp/validator.v5",
+			"Comment": "v5.11",
+			"Rev": "98121ac23ff3d764f525d18d8de944d150e3c0fe"
 		},
 		{
 			"ImportPath": "gopkg.in/bsm/ratelimit.v1",
