@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"gopkg.in/redis.v3"
 	"net/http"
 )
@@ -19,28 +19,24 @@ var (
 	redisClient *redis.Client
 )
 
-func New(redisclient *redis.Client) *mux.Router {
+func New(redisclient *redis.Client) *gin.Engine {
+	//TODO how can you pass a variable into a gin Engine's context? This is dirty af
 	redisClient = redisclient
 
-	router := mux.NewRouter().StrictSlash(true)
-	routes := Routes{
-		Route{"Index", "GET", "/", Index},
-		Route{"ApiIndex", "GET", "/api/v1", ApiV1Index},
-		Route{"CreatePlaylist", "POST", "/api/v1/playlist", ApiV1CreatePlaylist},
-		Route{"ShowPlaylist", "GET", "/api/v1/playlist/{plid}", ApiV1GetPlaylist},
-		Route{"DeletePlaylist", "DELETE", "/api/v1/playlist/{plid}", ApiV1DeletePlaylist},
-		Route{"GetSongs", "GET", "/api/v1/playlist/{plid}/songs", ApiV1GetSongsForPlaylist},
-		Route{"EnqueueSong", "POST", "/api/v1/playlist/{plid}/add", ApiV1EnqueueSong},
-		Route{"DequeueSong", "DELETE", "/api/v1/playlist/{plid}/{sid}", ApiV1DequeueSong},
-	}
+	router := gin.Default()
+	router.GET("/", Index)
 
-	for _, route := range routes {
-		loggingHandler := AccessLogger(route.HandlerFunc, route.Name)
-		router.
-			Methods(route.Method).
-			Path(route.Pattern).
-			Name(route.Name).
-			Handler(loggingHandler)
+	v1 := router.Group("/api/v1")
+	{
+		v1.GET("/", ApiV1Index)
+
+		v1.POST("/playlist", ApiV1CreatePlaylist)
+		v1.GET("/playlist/:plid", ApiV1GetPlaylist)
+		v1.DELETE("/playlist/:plid", ApiV1DeletePlaylist)
+
+		v1.GET("/playlist/:plid/songs", ApiV1GetSongsForPlaylist)
+		v1.POST("/playlist/:plid/enqueue", ApiV1EnqueueSong)
+		v1.DELETE("/playlist/:plid/:sid", ApiV1DequeueSong)
 	}
 
 	return router

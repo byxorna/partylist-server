@@ -1,12 +1,11 @@
 package web
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/byxorna/partylist-server/models"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -15,14 +14,14 @@ var (
 	SongsGetError    = errors.New("Unable to get songs")
 )
 
-func ApiV1GetSongsForPlaylist(w http.ResponseWriter, r *http.Request) {
-	requestedPlaylistId := mux.Vars(r)["plid"]
+func ApiV1GetSongsForPlaylist(c *gin.Context) {
+	requestedPlaylistId := c.Param("plid")
 	//TODO we should validate this playlist is accessible to the requestor
 
 	//check if the requested plid is actually a contributor id and find the real playlist
 	masterPlaylistId, err := redisClient.HGet("contributor_to_playlist", requestedPlaylistId).Result()
 	if err != nil {
-		ApiError(w, 500, SongsGetError, fmt.Errorf("Unable to lookup master playlist id from contributor id %s: %s", requestedPlaylistId, err))
+		ApiError(c, 500, SongsGetError, fmt.Errorf("Unable to lookup master playlist id from contributor id %s: %s", requestedPlaylistId, err))
 		return
 	}
 	if masterPlaylistId == "" {
@@ -32,18 +31,18 @@ func ApiV1GetSongsForPlaylist(w http.ResponseWriter, r *http.Request) {
 	// return all songs attached to a playlist
 	nsongs, err := redisClient.LLen("songs:" + masterPlaylistId).Result()
 	if err != nil {
-		ApiError(w, http.StatusInternalServerError, SongsGetError, fmt.Errorf("Unable to query for number of songs in playlist %s: %s", masterPlaylistId, err))
+		ApiError(c, http.StatusInternalServerError, SongsGetError, fmt.Errorf("Unable to query for number of songs in playlist %s: %s", masterPlaylistId, err))
 		return
 	}
-
+	nsongs = nsongs
 	// fetch all songs by paginating
-	panic("fuck")
+	panic("fuck FIXME")
 }
 
-func ApiV1EnqueueSong(w http.ResponseWriter, r *http.Request) {
+func ApiV1EnqueueSong(c *gin.Context) {
 	//TODO add song to playlist
 }
 
-func ApiV1DequeueSong(w http.ResponseWriter, r *http.Request) {
+func ApiV1DequeueSong(c *gin.Context) {
 	//TODO delete song from playlist
 }

@@ -1,14 +1,16 @@
 package web
 
 import (
-	"fmt"
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Welcome!")
+func Index(c *gin.Context) {
+	c.String(200, "Hello")
 }
 
-func ApiV1Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "API v1 Index")
+func ApiV1Index(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"version": "0.1.0",
+		"routes":  []string{"fill me in"},
+	})
 }

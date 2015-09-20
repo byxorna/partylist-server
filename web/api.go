@@ -1,9 +1,7 @@
 package web
 
 import (
-	"encoding/json"
-	"net/http"
-
+	"github.com/gin-gonic/gin"
 	log "github.com/golang/glog"
 )
 
@@ -12,6 +10,7 @@ type apiError struct {
 }
 
 // return an error as json
+/*
 func ApiError(w http.ResponseWriter, statusCode int, clientError error, realError error) {
 	w.WriteHeader(statusCode)
 	jsonError := apiError{
@@ -22,4 +21,14 @@ func ApiError(w http.ResponseWriter, statusCode int, clientError error, realErro
 	if err := json.NewEncoder(w).Encode(jsonError); err != nil {
 		panic(err)
 	}
+}
+*/
+
+func ApiError(c *gin.Context, statusCode int, clientError error, realError error) {
+	c.Error(realError)
+	c.Error(clientError)
+	c.JSON(statusCode, gin.H{
+		"error": clientError,
+	})
+	log.Error(realError)
 }

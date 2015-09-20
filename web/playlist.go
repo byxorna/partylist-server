@@ -1,15 +1,14 @@
 package web
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/byxorna/partylist-server/models"
 	"github.com/byxorna/partylist-server/util"
+	"github.com/gin-gonic/gin"
 	log "github.com/golang/glog"
-	"github.com/gorilla/mux"
 )
 
 var (
@@ -19,15 +18,14 @@ var (
 	GetPlaylistError    = errors.New("Unable to get playlist")
 )
 
-func ApiV1CreatePlaylist(w http.ResponseWriter, r *http.Request) {
+func ApiV1CreatePlaylist(c *gin.Context) {
 	// create a new playlist
 	var p models.Playlist
 
 	// decode received JSON
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&p)
+	err := c.BindJSON(&p)
 	if err != nil {
-		ApiError(w, 422, DecodePlaylistError, err)
+		ApiError(c, 422, DecodePlaylistError, err)
 		return
 	}
 
@@ -43,7 +41,7 @@ func ApiV1CreatePlaylist(w http.ResponseWriter, r *http.Request) {
 		//	"master_handle", p.MasterHandle,
 		"contributor_key", p.ContributorKey).Result()
 	if err != nil {
-		ApiError(w, 500, CreatePlaylistError, err)
+		ApiError(c, 500, CreatePlaylistError, err)
 		return
 	}
 	log.Infof("Created playlist at playlist:%s: %+v", p.Id, p)
@@ -51,7 +49,7 @@ func ApiV1CreatePlaylist(w http.ResponseWriter, r *http.Request) {
 	// track contributor handle mappings
 	_, err = redisClient.HSet("contributor_to_playlist", p.ContributorKey, p.Id).Result()
 	if err != nil {
-		ApiError(w, 500, CreatePlaylistError, fmt.Errorf("Unable to map contributor handle to playlist: %s", p.Id, err))
+		ApiError(c, 500, CreatePlaylistError, fmt.Errorf("Unable to map contributor handle to playlist: %s", p.Id, err))
 		return
 	}
 	log.Infof("Mapped contributor key %s to playlist %s", p.ContributorKey, p.Id)
@@ -59,7 +57,7 @@ func ApiV1CreatePlaylist(w http.ResponseWriter, r *http.Request) {
 	//TODO is this necessary? just for tracking how many playlists we have
 	_, err = redisClient.SAdd("playlists", p.Id).Result()
 	if err != nil {
-		ApiError(w, 500, CreatePlaylistError, fmt.Errorf("Unable to add playlist %s to playlist set: %s", p.Id, err))
+		ApiError(c, 500, CreatePlaylistError, fmt.Errorf("Unable to add playlist %s to playlist set: %s", p.Id, err))
 		return
 	}
 
@@ -67,19 +65,12 @@ func ApiV1CreatePlaylist(w http.ResponseWriter, r *http.Request) {
 	redisClient.LPush("songs:"+p.Id, "empty")
 	redisClient.LPop("songs:" + p.Id)
 
-	//TODO too much copypasta
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(p); err != nil {
-		panic(err)
-	}
-
+	c.JSON(http.StatusCreated, p)
 }
 
-func ApiV1GetPlaylist(w http.ResponseWriter, r *http.Request) {
+func ApiV1GetPlaylist(c *gin.Context) {
 	// get a playlist
-	vars := mux.Vars(r)
-	requestId := vars["plid"]
+	requestId := c.Param("plid")
 	plid := ""
 	// check if the plid is a contributor ID, substitute in the contributor handle for the ID
 	res, _ := redisClient.HGet("contributor_to_playlist", requestId).Result()
@@ -92,13 +83,13 @@ func ApiV1GetPlaylist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !redisClient.Exists("playlist:" + plid).Val() {
-		w.WriteHeader(http.StatusNotFound)
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	m, err := redisClient.HGetAllMap("playlist:" + plid).Result()
 	if err != nil {
-		ApiError(w, 500, GetPlaylistError, fmt.Errorf("Unable to fetch playlist %s: %s", plid, err))
+		ApiError(c, 500, GetPlaylistError, fmt.Errorf("Unable to fetch playlist %s: %s", plid, err))
 		return
 	}
 
@@ -110,14 +101,9 @@ func ApiV1GetPlaylist(w http.ResponseWriter, r *http.Request) {
 		p.Id = requestId
 	}
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(p); err != nil {
-		ApiError(w, 500, GetPlaylistError, fmt.Errorf("Unable to encode playlist %s: %s", p.Id, err))
-		return
-	}
+	c.JSON(http.StatusOK, p)
 }
 
-func ApiV1DeletePlaylist(w http.ResponseWriter, r *http.Request) {
+func ApiV1DeletePlaylist(c *gin.Context) {
 	//TODO delete a playlist
 }
