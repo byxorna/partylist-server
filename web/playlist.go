@@ -25,7 +25,7 @@ func ApiV1CreatePlaylist(c *gin.Context) {
 	// decode received JSON
 	err := c.BindJSON(&p)
 	if err != nil {
-		ApiError(c, 422, DecodePlaylistError, err)
+		ApiError(c, 422, err, err)
 		return
 	}
 

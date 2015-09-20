@@ -1,11 +1,11 @@
 package models
 
 type Playlist struct {
-	Id    string `json:"id" binding:"required"`
+	Id    string `json:"id"`
 	Name  string `json:"name" binding:"required"`
 	Owner string `json:"owner" binding:"required"`
 	//MasterHandle      string `json:"master_handle"`
-	ContributorKey string `json:"contributor_key" binding:"required"`
+	ContributorKey string `json:"contributor_key"`
 
 	//Songs   []Song `json:"songs"` // this isnt right... TODO
 	//OwnerId int64  `json:"owner_id"`

@@ -29,7 +29,7 @@ func ApiError(c *gin.Context, statusCode int, clientError error, realError error
 	c.Error(realError)
 	c.Error(clientError)
 	c.JSON(statusCode, gin.H{
-		"error": clientError,
+		"error": clientError.Error(),
 	})
 	log.Print(realError)
 }
