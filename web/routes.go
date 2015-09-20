@@ -29,8 +29,9 @@ func New(redisclient *redis.Client) *mux.Router {
 		Route{"CreatePlaylist", "POST", "/api/v1/playlist", ApiV1CreatePlaylist},
 		Route{"ShowPlaylist", "GET", "/api/v1/playlist/{plid}", ApiV1GetPlaylist},
 		Route{"DeletePlaylist", "DELETE", "/api/v1/playlist/{plid}", ApiV1DeletePlaylist},
-		Route{"AddSong", "POST", "/api/v1/playlist/{plid}/add", ApiV1AddSong},
-		Route{"DeleteSong", "DELETE", "/api/v1/playlist/{plid}/{sid}", ApiV1DeleteSong},
+		Route{"GetSongs", "GET", "/api/v1/playlist/{plid}/songs", ApiV1GetSongsForPlaylist},
+		Route{"EnqueueSong", "POST", "/api/v1/playlist/{plid}/add", ApiV1EnqueueSong},
+		Route{"DequeueSong", "DELETE", "/api/v1/playlist/{plid}/{sid}", ApiV1DequeueSong},
 	}
 
 	for _, route := range routes {
