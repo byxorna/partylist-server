@@ -1,8 +1,9 @@
 package web
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
-	log "github.com/golang/glog"
 )
 
 type apiError struct {
@@ -30,5 +31,5 @@ func ApiError(c *gin.Context, statusCode int, clientError error, realError error
 	c.JSON(statusCode, gin.H{
 		"error": clientError,
 	})
-	log.Error(realError)
+	log.Print(realError)
 }

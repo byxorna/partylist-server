@@ -8,10 +8,6 @@
 			"Rev": "704d690ac0e25fcd060ff82f75f913e879e65a3c"
 		},
 		{
-			"ImportPath": "github.com/golang/glog",
-			"Rev": "44145f04b68cf362d9c4df2182967c2275eaefed"
-		},
-		{
 			"ImportPath": "github.com/manucorporat/sse",
 			"Rev": "fe6ea2c8e398672518ef204bf0fbd9af858d0e15"
 		},

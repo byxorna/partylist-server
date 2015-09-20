@@ -3,12 +3,12 @@ package web
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/byxorna/partylist-server/models"
 	"github.com/byxorna/partylist-server/util"
 	"github.com/gin-gonic/gin"
-	log "github.com/golang/glog"
 )
 
 var (
@@ -32,7 +32,7 @@ func ApiV1CreatePlaylist(c *gin.Context) {
 	p.Id = util.RandomId(30)
 	p.ContributorKey = util.RandomId(30)
 
-	log.Infof("Creating playlist %+v", p)
+	log.Printf("Creating playlist %+v", p)
 
 	_, err = redisClient.HMSet("playlist:"+p.Id,
 		"id", p.Id,
@@ -44,7 +44,7 @@ func ApiV1CreatePlaylist(c *gin.Context) {
 		ApiError(c, 500, CreatePlaylistError, err)
 		return
 	}
-	log.Infof("Created playlist at playlist:%s: %+v", p.Id, p)
+	log.Printf("Created playlist at playlist:%s: %+v", p.Id, p)
 
 	// track contributor handle mappings
 	_, err = redisClient.HSet("contributor_to_playlist", p.ContributorKey, p.Id).Result()
@@ -52,7 +52,7 @@ func ApiV1CreatePlaylist(c *gin.Context) {
 		ApiError(c, 500, CreatePlaylistError, fmt.Errorf("Unable to map contributor handle to playlist: %s", p.Id, err))
 		return
 	}
-	log.Infof("Mapped contributor key %s to playlist %s", p.ContributorKey, p.Id)
+	log.Printf("Mapped contributor key %s to playlist %s", p.ContributorKey, p.Id)
 
 	//TODO is this necessary? just for tracking how many playlists we have
 	_, err = redisClient.SAdd("playlists", p.Id).Result()
@@ -75,7 +75,7 @@ func ApiV1GetPlaylist(c *gin.Context) {
 	// check if the plid is a contributor ID, substitute in the contributor handle for the ID
 	res, _ := redisClient.HGet("contributor_to_playlist", requestId).Result()
 	if res != "" {
-		log.Infof("Contributor key %s maps to master playlist %s", requestId, res)
+		log.Printf("Contributor key %s maps to master playlist %s", requestId, res)
 		plid = res
 	} else {
 		// no contributor key known, so this must be the master key
@@ -94,7 +94,7 @@ func ApiV1GetPlaylist(c *gin.Context) {
 	}
 
 	p := models.LoadPlaylistFromMap(m)
-	log.Infof("Loaded playlist %+v", p)
+	log.Printf("Loaded playlist %+v", p)
 
 	// replace master key with contributor key if necessary
 	if p.ContributorKey == requestId {

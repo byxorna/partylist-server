@@ -3,12 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	log "github.com/golang/glog"
-	"net/http"
-
-	"gopkg.in/redis.v3"
+	"log"
 
 	"github.com/byxorna/partylist-server/web"
+	"gopkg.in/redis.v3"
 )
 
 var (
@@ -39,7 +37,7 @@ func main() {
 
 	router := web.New(client)
 	log.Infof("Starting webserver on %s", fmt.Sprintf(":%d", httpPort))
-	if err = http.ListenAndServe(fmt.Sprintf(":%d", httpPort), router); err != nil {
+	if err := router.Run(fmt.Sprintf(":%d", httpPort)); err != nil {
 		log.Fatal(err)
 	}
 }
