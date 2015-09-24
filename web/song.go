@@ -21,6 +21,16 @@ const (
 	SONG_FETCH_BATCH_SIZE = 50
 )
 
+func ApiV1GetSongTypes(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"supported_types": []gin.H{
+			gin.H{"typeid": models.SongTypeYoutube, "name": "YouTube", "icon_url": "xxx"},
+			gin.H{"typeid": models.SongTypeSpotify, "name": "Spotify", "icon_url": "xxx"},
+			gin.H{"typeid": models.SongTypeSoundcloud, "name": "Soundcloud", "icon_url": "xxx"},
+		},
+	})
+}
+
 func ApiV1GetSongsForPlaylist(c *gin.Context) {
 	requestedPlaylistId := c.Param("plid")
 	//TODO we should validate this playlist is accessible to the requestor

@@ -37,6 +37,7 @@ func New(redisclient *redis.Client) *gin.Engine {
 		v1.GET("/playlist/:plid/songs", ApiV1GetSongsForPlaylist)
 		v1.POST("/playlist/:plid/enqueue", ApiV1EnqueueSong)
 		v1.DELETE("/playlist/:plid/:sid", ApiV1DequeueSong)
+		v1.GET("/supportedtypes", ApiV1GetSongTypes)
 	}
 
 	return router
